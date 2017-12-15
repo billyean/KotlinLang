@@ -19,8 +19,17 @@ It's extremely valuable to take note when reading the source code from open proj
 * [Swift](./languages/swift/README.md)
 
 ## Big Data Tools
+
+Some of links
+* [Flume](https://data-flair.training/blogs/apache-flume-tutorial/)
+
+Source code notes
+
 * [Hadoop](./bigdata/hadoop/README.md)
 * [Spark](./bigdata/spark/README.md)
+* [Kudu](./bigdata/kudu/README.md)
+* [Impala](./bigdata/impala/README.md)
+* [HBase](./bigdata/hbase/README.md)
 
 ## Cache
 * [Redis](./cache/redis/README.md)
@@ -30,3 +39,6 @@ It's extremely valuable to take note when reading the source code from open proj
 
 ## Machine Learning
 * [Tensorflow](./ml/tensorflow/README.md)
+
+## Web Server
+* [Nginx](./webserver/nginx/README.md)
