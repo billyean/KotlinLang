@@ -17,10 +17,17 @@
 
 [struct super_block](https://github.com/torvalds/linux/blob/master/include/linux/fs.h)
 
+#### Command
+* tune2fs -l [device] - display file system info 
+* df -i - inode usage rate
+* ls -ai - list all files and their inodes under current folder
+
 
 # Reference
 ## [CLion INotify Watch is too low warning](https://confluence.jetbrains.com/display/IDEADEV/Inotify+Watches+Limit) 
+
 in Ubuntu, just do
+
 '''
 sudo sysctl fs.inotify.max_user_watches=xxxxx
 '''
