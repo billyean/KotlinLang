@@ -14,21 +14,44 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 
 ## Call stack under the hood
 
-### Client create a new file.
+### Create a file
+
+#### Client create a new file.
+
 * [DFSClient](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSClient.java) creates a client instance, then make a [create](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSClient.java#create) call to create a file in HDFS. 
 * create method get mode by given permission or default permission if not given.
 * create method call [DFSOutputStream.newStreamForCreate](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSOutputStream.java) method to acquire a [DFSOutputStream](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSOutputStream.java) instance.
 * after client acquired the [DFSOutputStream](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSOutputStream.java) instance, it calls [beginFileLease](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSClient.java#beginFileLease) to start automatic renewal process. [LeaseRenewer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/client/impl/LeaseRenewer.java) is a daemon thread to check if the renewal is expired. 
+* if Erasure Coding is enabled, a DFSStripedOutputStream instance will be created, otherwise a DFSOutputStream instance will be created(Data Streamer instance will be created when EC is not enabled).
+* Once DFSOutputStream instance created, DFSClient computes how many chunks and packets will be sent.
+* When EC is not enabled, [DataStreamer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DataStreamer.java) will take the responsibilities for sending data packets to the datanodes in the pipeline.
 
-### Communication protocol
+#### Communication protocol
 * [DFSClient](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSClient.java) holds a retry policy if 10 times retries are not reached.
- 
+* DFSClient uses [ClientProtocol](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/protocol/ClientProtocol.java) to make a RPC call.
+* [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) takes the RPC call from DFSClient. 
 
-# Name Node
+#### Name node logic analysis
 
-# Data Node
+* Once [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) get create RPC call from DFSClient, first it will check if name node is up and do sanity check for create file path length. It calls [FSNamesystem.startFile](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFile) to create a new file.
+* [FSNamesystem.startFile](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFile) will call [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt) to create file.
+* [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt) starts with checking validity of the given file path and permission, then it acquires a R/W lock(ReentrantReadWriteLock) for writing the data.
+* [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt) also checks name node is not in safe mode, create inode for the file, check if replication factor when EC is not enabled, check block size is valid, acquires FileEncryptionInfo if EZ policy is given. 
+* At the end [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt) checks if the associated path existed, create path if the path doesn't exist by calling [FSDirWriteFileOp.startFile](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSDirWriteFileOp.java#startFile).
+* [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt) write edit log for file creation event when skipSync flag is false. 
+* After calling [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt), [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) will add audit log for file creation event.(Audit log is human readable log)
+* [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) returns a [HdfsFileStatus](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/protocol/HdfsFileStatus.java) instance once the file created successfully.
 
-## Block Transfer
+## Encryption in HDFS
+
+# Code Analysis
+
+## Name Node
+
+## Data Node
+
+### Block Transfer
+
 
 * [FileIoProvider](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/datanode/FileIoProvider.java)
 
