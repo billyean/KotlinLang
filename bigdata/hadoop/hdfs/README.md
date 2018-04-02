@@ -31,7 +31,7 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 * DFSClient uses [ClientProtocol](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/protocol/ClientProtocol.java) to make a RPC call.
 * [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) takes the RPC call from DFSClient. 
 
-#### Name node logic analysis
+#### Prepare for new file.
 
 * Once [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) get create RPC call from DFSClient, first it will check if name node is up and do sanity check for create file path length. It calls [FSNamesystem.startFile](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFile) to create a new file.
 * [FSNamesystem.startFile](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFile) will call [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt) to create file.
@@ -41,6 +41,19 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 * [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt) write edit log for file creation event when skipSync flag is false. 
 * After calling [FSNamesystem.startFileInt](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#startFileInt), [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) will add audit log for file creation event.(Audit log is human readable log)
 * [NameNodeRpcServer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java) returns a [HdfsFileStatus](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/protocol/HdfsFileStatus.java) instance once the file created successfully.
+
+#### Writing
+
+* When EC is not enabled, [DataStreamer](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DataStreamer.java) will take the responsibilities for sending data packets to the datanodes in the pipeline
+* DataStreamer is a daemon thread that opens streams to data node, and closes them.
+* Every DataStreamer hold one dataQueue
+* DataStreamer peoridacally checks dataQueue until steamer closed or dfsClient.clientRunning is false(calling DataStreamer.close will set false).
+* DataStreamer will send heart beat packet if no data is available in dataQueue. 
+* DataStreamer thread also will force itself to sleep if writing pipeline is congested.
+* Once DataStreamer read data from dataQueue, it first checks current stage of writing. If current stage is PIPELINE_SETUP_CREATE, DataStreamer calls [nextBlockOutputStream](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DataStreamer.java#nextBlockOutputStream) to create a new block
+* [nextBlockOutputStream](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DataStreamer.java#nextBlockOutputStream) calls [locateFollowingBlock](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DataStreamer.java#locateFollowingBlock) then [DFSOutputStream.addBlock](hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSOutputStream.java#addBlock) that create a new block.
+* [DFSOutputStream.addBlock](hadoop-hdfs-project/hadoop-hdfs-client/src/main/java/org/apache/hadoop/hdfs/DFSOutputStream.java#addBlock) makes a RPC call to [NameNodeRpcServer.addBlock](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java#addBlock), [NameNodeRpcServer.addBlock](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/NameNodeRpcServer.java#addBlock) calls [FSNamesystem.getAdditionalBlock](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/FSNamesystem.java#getAdditionalBlock) to add a new block.  
+* 
 
 ## Encryption in HDFS
 
