@@ -11,20 +11,20 @@
 
 |member                |Description    |
 |----------------------|---------------|
-|i_ino                 |subscript in inode array|
-|imode                 |mode info|
-|i_uid                 |owner id|
-|i_gid                 |owner's group id|
+|i_ino                 |`subscript in inode array`|
+|imode                 |`mode info`|
+|i_uid                 |`owner id`|
+|i_gid                 |`owner's group id`|
 |i_count               |My guess is it's the number of files that is using this inode, possibly related to hard link, plus 1 when create a hard link on the same inode|
 |i_writecount          |My guess is write process number|
-|i_data                |data info. for directory it contains|
+|i_data                |`data info. for directory it contains`|
 
 [inode.c](https://github.com/torvalds/linux/blob/master/fs/inode.c)
 
 |method                |Description    |
 |----------------------|---------------|
-|get_nr_inodes         |iterator every cpus to get total number of inodes|
-|get_nr_inodes_unused  |iterator every cpus to get total number of unused inodes|
+|get_nr_inodes         |`iterator every cpus to get total number of inodes`|
+|get_nr_inodes_unused  |`iterator every cpus to get total number of unused inodes`|
 |ilookup               ||
 
 # superblock
@@ -36,9 +36,9 @@
 
 |member                |Description    |
 |----------------------|---------------|
-|s_type                |file system type|
-|s_dev                 |search index for device|
-|s_root                |dentry of this super block|
+|s_type                |`file system type`|
+|s_dev                 |`search index for device`|
+|s_root                |`dentry of this super block`|
 
 # Operations
 
@@ -46,7 +46,7 @@
 
 |member                |Description    |
 |----------------------|---------------|
-|lookup                |look a dentry under a inode|
+|lookup                |`look a dentry under a inode`|
 |get_link              ||
 |permission            ||
 |get_acl               ||
@@ -79,9 +79,10 @@
 |evict_inode          ||
 |put_super            ||
 
+[struct file_operations](https://github.com/torvalds/linux/blob/master/include/linux/fs.h)
+
 # Path look up process
 
-# File Operation
-[struct file_operations](https://github.com/torvalds/linux/blob/master/include/linux/fs.h)
+
 
 

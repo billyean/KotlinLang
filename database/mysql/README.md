@@ -1,3 +1,7 @@
+# Reading
+
+[MySQL Internals Manual](https://dev.mysql.com/doc/internals/en/)
+
 # Work on code
 
 * [Official Link for Source Code](https://dev.mysql.com/doc/internals/en/guided-tour.html)
