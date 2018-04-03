@@ -12,11 +12,11 @@ It's extremely valuable to take note when reading the source code from open proj
 * [My SQL](./database/mysql/README.md)
 
 ## Language
-* [Java](./languages/java/README.md)
-* [Python](./languages/python/README.md)
-* [Scala](./languages/scala/README.md)
-* [GO](./languages/go/README.md)
-* [Swift](./languages/swift/README.md)
+* [Java](./language/java/README.md)
+* [Python](./language/python/README.md)
+* [Scala](./language/scala/README.md)
+* [GO](./language/go/README.md)
+* [Swift](./language/swift/README.md)
 
 ## Big Data Tools
 
