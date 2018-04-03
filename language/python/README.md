@@ -7,10 +7,14 @@ CPython is a traditional C project, build with
 make
 ```
 
-## [Python Developer Guide](https://devguide.python.org/)
+## Python Developer Guide
 
-## Object model(./Object.md)
-## Memory management(./Memory.md)
-## Parser(./Parser.md)
-## Util(./Util.md)
-## Library(./Library.md)
+[https://devguide.python.org/](https://devguide.python.org/)
+
+## Module
+
+* [Object model](./Object.md)
+* [Memory management](./Memory.md)
+* [Parser](./Parser.md)
+* [Util](./Util.md)
+* [Library](./Library.md)
