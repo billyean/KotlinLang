@@ -19,23 +19,13 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 * [Recovery](./Recovery.md)
 * [Encryption](./Encryption.md)
 * [Distributed Copy](./DistCP.md)
+* [Erasure Coding](./ErasureCoding.md)
 
-# Code Analysis
+* [Snapshots](./Snapshots.md)
 
-## Name Node
+# Code Analysis on components
 
-## Data Node
+* [Name Node](./nn/README.md)
+* [Data Node](./nn/README.md)
+* [Client](./client/README.md)
 
-### Block Transfer
-
-
-* [FileIoProvider](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/datanode/FileIoProvider.java)
-
-|Method             |Description    |
-|-------------------|---------------|
-|||
-
-* [BlockReceiver](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/datanode/BlockReceiver.java) - 
-
-* [LocalReplica](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/datanode/LocalReplica.java)
- 
