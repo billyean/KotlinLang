@@ -15,8 +15,8 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 ## Call stack under the hood
 
 [Process on create a new file in HDFS](./Create_File.md)
-
-## Encryption in HDFS
+[Lease](./Lease.md)
+[Encryption](./Encryption.md)
 
 # Code Analysis
 
