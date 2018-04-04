@@ -16,6 +16,8 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 
 * [Process on create a new file in HDFS](./Create_File.md)
 * [Lease](./Lease.md)
+* [Federation](./Federation.md)
+* [HA](./HA.md)
 * [Recovery](./Recovery.md)
 * [Encryption](./Encryption.md)
 * [Distributed Copy](./DistCP.md)

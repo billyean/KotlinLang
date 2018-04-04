@@ -1,3 +1,7 @@
+# References
+
+* [DistCp Guide](https://hadoop.apache.org/docs/current/hadoop-distcp/DistCp.html)
+
 HDFS's encryption model can be divided two part
 
 * Authentication/Authorization
@@ -9,7 +13,6 @@ HDFS's encryption model can be divided two part
 Whenever HDFS tries to access file in an encryption zone, HDFS first need  create a EDEK for the file .
 
 HDFS doesn't own the encryption key directly. Instead HDFS calls out to the configured KeyProvider to get EDEK by calling [EncryptionKeyInfo.getEncryptionKeyInfo](https://github.com/apache/hadoop/blob/trunk/hadoop-hdfs-project/hadoop-hdfs/src/main/java/org/apache/hadoop/hdfs/server/namenode/EncryptionKeyInfo.java#getEncryptionKeyInfo).
-
 
 
 ## Authentication/Authorization
