@@ -1,6 +1,5 @@
 # Proto
 
-
 HDFS is using [Google ProtoBuf library](https://developers.google.com/protocol-buffers/) to generate the RPC code.
 
 # Process
@@ -20,7 +19,7 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 * [Encryption](./Encryption.md)
 * [Distributed Copy](./DistCP.md)
 
-# Code Analysis
+# Code Analysis by components
 
 ## Name Node
 
