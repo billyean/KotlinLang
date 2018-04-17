@@ -30,3 +30,7 @@ Since hadoop is umbrella project for Yarn and HDFS, all common interfaces are pu
 * [Data Node](./nn/README.md)
 * [Client](./client/README.md)
 
+# References
+
+* [HDFS Architecture](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/HdfsDesign.html)
+
