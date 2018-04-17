@@ -31,8 +31,14 @@ Please see comment on [FSImageFormat](https://github.com/apache/hadoop/blob/trun
 - snapshot counter(32 bits)
 - number of snapshots(32)
 - number of snapshot dirs(32)
+- compression header
+    * flag if compression is supported(8 bits)
+    * codec class name if flag is true.
+    
+#### FSIMAGE_NAME_OPTIMIZATION 
+##### With Snapshot
 
-####
+#### No FSIMAGE_NAME_OPTIMIZATION
 
 # Process for startup
 
