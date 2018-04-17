@@ -1,6 +1,6 @@
 # References
 
-* [DistCp Guide](https://hadoop.apache.org/docs/current/hadoop-distcp/DistCp.html)
+* [Transparent Encryption in HDFS](https://hadoop.apache.org/docs/stable/hadoop-project-dist/hadoop-hdfs/TransparentEncryption.html)
 
 HDFS's encryption model can be divided two part
 
